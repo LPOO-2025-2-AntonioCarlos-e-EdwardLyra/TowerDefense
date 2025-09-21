@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     Thread gameThread;
     /*
-    Essa classe Thread serve pra iniciar e parar o jogo e é usada para criar um tempo no jogo, pois um jogo em 2d sempre precisa ser atualizado
+    Essa classe Thread serve para iniciar e parar o jogo e é usada para criar um tempo no jogo, pois um jogo em 2d sempre precisa ser atualizado
     */
 
     public GamePanel(){
@@ -38,5 +38,27 @@ public class GamePanel extends JPanel implements Runnable{
     @Override
     public void run() { // Local onde vai ser criado o Loop do jogo
 
+        while(gameThread != null){ // Enquanto o "gameThread" existir/for diferente de null o que está dentro das chaves vai ficar num loop
+
+            // 1 UPDATE: Atualiza informações como as posições dos personagens
+            update();
+            // 2 DRAW: Desenha a tela com as informações atualizadas
+            repaint(); // É dessa forma que se chama o paintComponent
+        }
+    }
+    public void update(){ // O void=vazio significa que o comando vai executar uma ação, mas não vai retornar nenhum valor
+
+    }
+    public void paintComponent(Graphics g){ // É um dos métodos padrão para desenhar coisas no JPanel
+
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D)g;// Converte o Graphics para a classe Graphics2D(o Graphics2D possui mais funções que o Graphics)
+
+        g2.setColor(Color.white);
+
+        g2.fillRect(100, 100, tileSize, tileSize); // Cria um retângulo de início
+
+        g2.dispose(); // Boa prática para salvar algumas memórias
     }
 }

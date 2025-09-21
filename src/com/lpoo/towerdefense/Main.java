@@ -12,10 +12,12 @@ public class Main {
 
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel); // Adiciona este gamePanel a esta janela
-         window.pack();
+        window.pack();
 
         window.setLocationRelativeTo(null); // A janela será exibida no centro da tela
         window.setVisible(true); // Torna a janela visível
+
+        gamePanel.startGameThread();
 
         
     }
