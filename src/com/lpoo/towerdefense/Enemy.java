@@ -14,6 +14,7 @@ public class Enemy {
     public int x, y;
     private int speed = 1; // Velocidade de movimento em pixels
     public int health;
+    public boolean active = true;
 
     private List<Point> path;
     private int currentWaypointIndex;
@@ -29,29 +30,31 @@ public class Enemy {
     }
 
     private void buildPath() {
-     int[][] enemyLayout = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-};
+//      int[][] enemyLayout = {
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+//     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+// };
 
         path = new ArrayList<>();
-     // Pontos de virada (waypoints) baseados no enemyLayout
-        path.add(new Point(gp.tileSize * 0, gp.tileSize * 1));
-        path.add(new Point(gp.tileSize * 14, gp.tileSize * 1));
-        path.add(new Point(gp.tileSize * 14, gp.tileSize * 6));
-        path.add(new Point(gp.tileSize * 2, gp.tileSize * 6));
-        path.add(new Point(gp.tileSize * 2, gp.tileSize * 8));
-        path.add(new Point(gp.tileSize * 15, gp.tileSize * 8));
+        
+        // Pontos de virada (waypoints) baseados no enemyLayout
+        path.add(new Point(gp.tileSize * 0, gp.tileSize * 2));
+        path.add(new Point(gp.tileSize * 13, gp.tileSize * 2));
+        path.add(new Point(gp.tileSize * 13, gp.tileSize * 5));
+        path.add(new Point(gp.tileSize * 1, gp.tileSize * 5));
+        path.add(new Point(gp.tileSize * 1, gp.tileSize * 9));
+        path.add(new Point(gp.tileSize * 15, gp.tileSize * 9));
+    
     }
 
     public void setDefaultValues() {
@@ -62,8 +65,11 @@ public class Enemy {
         y = startPoint.y;
         currentWaypointIndex++; // Prepara para se mover para o próximo ponto
     }
-
-    public void update() {
+    
+    public void update() {  
+        if (!active) {
+            return;
+        }
         // Verifica se o inimigo ainda tem um caminho a seguir
         if (currentWaypointIndex < path.size()) {
             Point target = path.get(currentWaypointIndex);
@@ -95,10 +101,16 @@ public class Enemy {
                 y = target.y;
                 currentWaypointIndex++;
             }
+        } else {
+                // O inimigo chegou ao final do caminho
+                active = false;
         }
     }
 
     public void draw(Graphics2D g2) {
+        if(!active) {
+            return;
+        }
         // Cria um triângulo para representar o inimigo
         Polygon triangle = new Polygon();
         triangle.addPoint(x + gp.tileSize / 2, y); // Ponto superior
