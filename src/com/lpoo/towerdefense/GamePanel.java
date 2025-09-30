@@ -16,7 +16,25 @@ public class GamePanel extends JPanel implements Runnable{
     final int maxScreenRow = 12;
     final int screenWidth = tileSize * maxScreenCol; // (width = largura) = 48 x 16 = 768 pixels
     final int screeHeight = tileSize * maxScreenRow;// (height = altura) = 48 x 12 = 576 pixels
-
+    
+    int life = 3;
+    
+    // Mapa do percurso
+    int[][] mapLayout = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+        {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
+    
     // FPS
     int FPS = 60;
 
@@ -27,6 +45,7 @@ public class GamePanel extends JPanel implements Runnable{
     */
 
     KeyHandler keyH = new KeyHandler();
+    Enemy enemy; // Cria um inimigo
 
     //Variáveis para posições e velocidade do player/teste
     int playerX = 100;
@@ -43,6 +62,7 @@ public class GamePanel extends JPanel implements Runnable{
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        enemy = new Enemy(this); // Cria um inimigo
     }
 
     public void startGameThread(){
@@ -96,7 +116,13 @@ public class GamePanel extends JPanel implements Runnable{
         }
         else if (keyH.rightPressed) {
             playerX += playerSpeed;
+        }
 
+        if (enemy.active) {
+            enemy.update(); // Atualiza o inimigo
+            if (!enemy.active) { // Se o inimigo se tornou inativo nesta atualização (chegou ao fim)
+                life--;
+            }
         }
     }
     public void paintComponent(Graphics g){ // É um dos métodos padrão para desenhar coisas no JPanel
@@ -105,10 +131,31 @@ public class GamePanel extends JPanel implements Runnable{
 
         Graphics2D g2 = (Graphics2D)g;// Converte o Graphics para a classe Graphics2D(o Graphics2D possui mais funções que o Graphics)
 
+        // Desenha o fundo do percurso
         g2.setColor(Color.white);
+        g2.setFont(new Font("Monospaced", Font.PLAIN, tileSize));
 
+        for(int row = 0; row < maxScreenRow; row++){
+            for(int col = 0; col < maxScreenCol; col++){
+                if(mapLayout[row][col] == 1){
+                    // Desenha o caractere '@' na posição do mapa
+                    g2.drawString("@", col * tileSize, (row + 1) * tileSize - (tileSize/4));
+                }
+            }
+        }
+
+        // Desenha o quadrado branco móvel por cima do fundo
+        g2.setColor(Color.white);
         g2.fillRect(playerX, playerY, tileSize, tileSize); // Cria um retângulo de início
+        
+        enemy.draw(g2); // Desenha o inimigo
 
+        // Desenha o contador de vida
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        String lifeText = "Life: " + life;
+        g2.drawString(lifeText, screenWidth - 100, 30);
+        
         g2.dispose(); // Boa prática para salvar algumas memórias
     }
 }
