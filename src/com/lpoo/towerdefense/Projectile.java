@@ -9,15 +9,16 @@ public class Projectile {
     private int speed;
     private Enemy target;
     public boolean active = true;
-    private int damage = 1;
+    private int damage;
     private GamePanel gp;
 
-    public Projectile(GamePanel gp, int startX, int startY, Enemy target) {
+    public Projectile(GamePanel gp, int startX, int startY, Enemy target, int damage) {
         this.gp = gp;
         this.x = startX;
         this.y = startY;
         this.target = target;
         this.speed = 5; // Velocidade do projétil
+        this.damage = damage;
     }
 
     public void update() {

@@ -57,10 +57,9 @@ public class GamePanel extends JPanel implements Runnable{
     private long timeBetweenRounds = 5000; // 5 segundos entre rounds
 
     // Estado do Jogo para compra de torres
-    private enum GameState { NORMAL, PLACING_TOWER }
+    private enum GameState { NORMAL, PLACING_TOWER_NORMAL, PLACING_TOWER_SNIPER }
     private GameState gameState = GameState.NORMAL;
-    private int towerCost = 8;
-
+    
     Thread gameThread;
     /*
     Essa classe Thread serve para iniciar e parar o jogo e é usada para criar um tempo no jogo, pois um jogo em 2d sempre precisa ser atualizado
@@ -185,27 +184,34 @@ private void startNextRound() {
             int gridCol = mouseX / tileSize;
             int gridRow = mouseY / tileSize;
 
-            // 1. Lógica de Compra na UI
-            // A UI está na linha 15 (índice 14)
-            if (gridRow == 14 && gridCol >= 0 && gridCol <= 2) {
-                if (coins >= towerCost) {
-                    gameState = GameState.PLACING_TOWER;
+             // 1. Lógica de Compra na UI
+            if (gridRow >= 14) { // Clicou na área da UI
+                if (gridCol >= 1 && gridCol <= 2 && coins >= Tower.NORMAL_COST) {
+                    gameState = GameState.PLACING_TOWER_NORMAL;
+                } else if (gridCol >= 3 && gridCol <= 4 && coins >= Tower.SNIPER_COST) {
+                    gameState = GameState.PLACING_TOWER_SNIPER;
                 }
-            }
-            
+            } 
+
             // 2. Lógica de Posicionamento
-            else if (gameState == GameState.PLACING_TOWER) {
+            else if (gameState == GameState.PLACING_TOWER_NORMAL) {
                 if (canPlaceTower(gridCol, gridRow)) {
-                    towers.add(new Tower(this, gridCol, gridRow));
-                    coins -= towerCost;
+                    towers.add(new Tower(this, gridCol, gridRow, Tower.TowerType.NORMAL));
+                    coins -= Tower.NORMAL_COST;
+                    gameState = GameState.NORMAL;
+                }
+            } else if (gameState == GameState.PLACING_TOWER_SNIPER) {
+                if (canPlaceTower(gridCol, gridRow)) {
+                    towers.add(new Tower(this, gridCol, gridRow, Tower.TowerType.SNIPER));
+                    coins -= Tower.SNIPER_COST;
                     gameState = GameState.NORMAL;
                 }
             }
         }
 
-        if (mouseH.rightClicked) {
+         if (mouseH.rightClicked) {
             // Cancelar posicionamento com botão direito
-            if (gameState == GameState.PLACING_TOWER) {
+            if (gameState != GameState.NORMAL) {
                 gameState = GameState.NORMAL;
             } else { // Remover torre
                 int gridCol = mouseH.mouseX / tileSize;
@@ -244,7 +250,7 @@ private void startNextRound() {
             Tower tower = iterator.next();
             if (tower.col == col && tower.row == row) {
                 iterator.remove();
-                coins += towerCost / 2; // Devolve metade do valor
+                coins += tower.cost / 2; // Devolve metade do valor original da torre
                 break;
             }
         }
@@ -273,7 +279,7 @@ private void startNextRound() {
 
         //Desenha a UI e o feedback de posicionamento
         drawUI(g2);
-        if (gameState == GameState.PLACING_TOWER) {
+        if (gameState != GameState.NORMAL) {
             drawPlacementPreview(g2);
         }
         
@@ -298,14 +304,21 @@ private void startNextRound() {
         // Fundo da UI
         g2.setColor(new Color(50, 50, 50));
         g2.fillRect(0, 14 * tileSize, screenWidth, 2 * tileSize);
-
-        // Botão de compra de torre
-        g2.setColor(Color.BLUE);
-        g2.fillRect(1 * tileSize, 14 * tileSize + tileSize/4, tileSize, tileSize);
-        g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 12));
-        g2.drawString("Torre", 1 * tileSize + 10, 14 * tileSize + tileSize/4 + 28);
-        g2.drawString("$" + towerCost, 1 * tileSize + 12, 14 * tileSize + tileSize/4 + 42);
+
+        // Botão de compra de torre NORMAL
+        g2.setColor(Color.BLUE);
+        g2.fillRect(1 * tileSize, 14 * tileSize + tileSize/4, tileSize*2, tileSize);
+        g2.setColor(Color.WHITE);
+        g2.drawString("Normal", 1 * tileSize + 20, 14 * tileSize + tileSize/4 + 20);
+        g2.drawString("$" + Tower.NORMAL_COST, 1 * tileSize + 25, 14 * tileSize + tileSize/4 + 40);
+
+        // Botão de compra de torre SNIPER
+        g2.setColor(new Color(0, 100, 0));
+        g2.fillRect(3 * tileSize + 10, 14 * tileSize + tileSize/4, tileSize*2, tileSize);
+        g2.setColor(Color.WHITE);
+        g2.drawString("Sniper", 3 * tileSize + 30, 14 * tileSize + tileSize/4 + 20);
+        g2.drawString("$" + Tower.SNIPER_COST, 3 * tileSize + 35, 14 * tileSize + tileSize/4 + 40);
     }
 
     private void drawPlacementPreview(Graphics2D g2) {
