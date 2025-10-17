@@ -13,14 +13,16 @@ public class GamePanel extends JPanel implements Runnable{
 
     final int tileSize = originalTileSize * scale; // 48x48 = Tamanho real dos objetos que vão ser exibidos na tela do jogo
     final int maxScreenCol = 16;
-    final int maxScreenRow = 12;
+    final int maxScreenRow = 16;
     final int screenWidth = tileSize * maxScreenCol; // (width = largura) = 48 x 16 = 768 pixels
     final int screeHeight = tileSize * maxScreenRow;// (height = altura) = 48 x 12 = 576 pixels
     
     int life = 3;
+    int coins = 8;
     
     // Mapa do percurso
     int[][] mapLayout = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
@@ -32,6 +34,9 @@ public class GamePanel extends JPanel implements Runnable{
         {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
     
@@ -46,6 +51,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     KeyHandler keyH = new KeyHandler();
     Enemy enemy; // Cria um inimigo
+     Tower tower; // Cria uma torre
 
     //Variáveis para posições e velocidade do player/teste
     int playerX = 100;
@@ -63,6 +69,7 @@ public class GamePanel extends JPanel implements Runnable{
         this.addKeyListener(keyH);
         this.setFocusable(true);
         enemy = new Enemy(this); // Cria um inimigo
+        tower = new Tower(this, 7, 8); // Cria uma torre na posição 7,7
     }
 
     public void startGameThread(){
@@ -120,10 +127,12 @@ public class GamePanel extends JPanel implements Runnable{
 
         if (enemy.active) {
             enemy.update(); // Atualiza o inimigo
-            if (!enemy.active) { // Se o inimigo se tornou inativo nesta atualização (chegou ao fim)
+            if (!enemy.active  && enemy.health > 0) { // Se o inimigo se tornou inativo nesta atualização (chegou ao fim)
                 life--;
             }
         }
+
+        tower.update(enemy); // Atualiza a torre e seus projéteis 
     }
     public void paintComponent(Graphics g){ // É um dos métodos padrão para desenhar coisas no JPanel
 
@@ -143,19 +152,21 @@ public class GamePanel extends JPanel implements Runnable{
                 }
             }
         }
-
         // Desenha o quadrado branco móvel por cima do fundo
         g2.setColor(Color.white);
         g2.fillRect(playerX, playerY, tileSize, tileSize); // Cria um retângulo de início
         
         enemy.draw(g2); // Desenha o inimigo
+        tower.draw(g2); // Desenha a torre
 
         // Desenha o contador de vida
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 20));
         String lifeText = "Life: " + life;
         g2.drawString(lifeText, screenWidth - 100, 30);
-        
+
+        String coinsText = "Coins: " + coins;
+        g2.drawString(coinsText, 20, 30);
         g2.dispose(); // Boa prática para salvar algumas memórias
     }
 }
