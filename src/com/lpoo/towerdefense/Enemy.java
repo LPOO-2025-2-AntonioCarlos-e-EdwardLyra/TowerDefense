@@ -39,7 +39,6 @@ public class Enemy {
         path.add(new Point(gp.tileSize * 1, gp.tileSize * 6));
         path.add(new Point(gp.tileSize * 1, gp.tileSize * 10));
         path.add(new Point(gp.tileSize * 15, gp.tileSize * 10));
-    
     }
 
     public void setDefaultValues() {
