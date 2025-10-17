@@ -30,30 +30,15 @@ public class Enemy {
     }
 
     private void buildPath() {
-//      int[][] enemyLayout = {
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-//     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-// };
-
         path = new ArrayList<>();
         
         // Pontos de virada (waypoints) baseados no enemyLayout
-        path.add(new Point(gp.tileSize * 0, gp.tileSize * 2));
-        path.add(new Point(gp.tileSize * 13, gp.tileSize * 2));
-        path.add(new Point(gp.tileSize * 13, gp.tileSize * 5));
-        path.add(new Point(gp.tileSize * 1, gp.tileSize * 5));
-        path.add(new Point(gp.tileSize * 1, gp.tileSize * 9));
-        path.add(new Point(gp.tileSize * 15, gp.tileSize * 9));
+        path.add(new Point(gp.tileSize * 0, gp.tileSize * 3));
+        path.add(new Point(gp.tileSize * 13, gp.tileSize * 3));
+        path.add(new Point(gp.tileSize * 13, gp.tileSize * 6));
+        path.add(new Point(gp.tileSize * 1, gp.tileSize * 6));
+        path.add(new Point(gp.tileSize * 1, gp.tileSize * 10));
+        path.add(new Point(gp.tileSize * 15, gp.tileSize * 10));
     
     }
 
@@ -106,6 +91,16 @@ public class Enemy {
                 active = false;
         }
     }
+
+    public void takeDamage(int amount) {
+        health -= amount;
+        if (health <= 0) {
+            active = false;
+            gp.coins += 3; 
+        }
+    }
+
+    
 
     public void draw(Graphics2D g2) {
         if(!active) {
