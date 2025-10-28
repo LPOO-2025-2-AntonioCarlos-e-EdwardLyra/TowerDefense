@@ -48,12 +48,13 @@ public class GamePanel extends JPanel implements Runnable{
 
     // Controlador de Rounds
     private int currentRound = 0;
-    private int[] enemiesPerRound = {0, 3, 5, 8}; // Round 0 é nulo, começamos do 1
+    private int[] enemiesPerRound = {0, 3, 5, 8, 16, 18}; // Round 0 é nulo, começamos do 1
     private long spawnDelay = 1500; // 1.5 segundos entre inimigos
     private long lastSpawnTime = 0;
     private int enemiesSpawnedThisRound = 0;
     private boolean roundInProgress = false;
     private long roundEndTime = 0;
+    private boolean allRoundsCompleted = false;
     private long timeBetweenRounds = 5000; // 5 segundos entre rounds
 
     // Controlador do Estado do Jogo
@@ -122,19 +123,20 @@ public class GamePanel extends JPanel implements Runnable{
             }
         }
     }
-} 
-
-private void startNextRound() {
-    currentRound++;
-    if (currentRound < enemiesPerRound.length) {
-        enemiesSpawnedThisRound = 0;
-        roundInProgress = true;
-        System.out.println("Starting Round " + currentRound);
-    } else {
-        System.out.println("All rounds completed!");
-        // Fim de jogo (vitória)
-    }
 }
+
+    private void startNextRound() {
+        currentRound++;
+        if (currentRound < enemiesPerRound.length) {
+            enemiesSpawnedThisRound = 0;
+            roundInProgress = true;
+            System.out.println("Starting Round " + currentRound);
+        } else {
+            System.out.println("All rounds completed!");
+            allRoundsCompleted = true; // Ativa a trava
+            currentRound = enemiesPerRound.length - 1; // Trava o contador no último round (3)
+        }
+    }
 
     public void update(){
 
@@ -145,7 +147,7 @@ private void startNextRound() {
         handleMouse();
 
         // Controlador de rounds
-        if (!roundInProgress) {
+        if (!roundInProgress && !allRoundsCompleted) {
             if (System.currentTimeMillis() - roundEndTime > timeBetweenRounds) {
                 startNextRound();
             }
