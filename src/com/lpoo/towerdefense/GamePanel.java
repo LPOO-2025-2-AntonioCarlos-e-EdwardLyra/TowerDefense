@@ -46,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
     // FPS
     int FPS = 60;
 
-    // Gerenciamento de Rounds
+    // Controlador de Rounds
     private int currentRound = 0;
     private int[] enemiesPerRound = {0, 3, 5, 8}; // Round 0 é nulo, começamos do 1
     private long spawnDelay = 1500; // 1.5 segundos entre inimigos
@@ -56,9 +56,9 @@ public class GamePanel extends JPanel implements Runnable{
     private long roundEndTime = 0;
     private long timeBetweenRounds = 5000; // 5 segundos entre rounds
 
-    // Estado do Jogo para compra de torres
-    private enum GameState { NORMAL, PLACING_TOWER_NORMAL, PLACING_TOWER_SNIPER }
-    private GameState gameState = GameState.NORMAL;
+    // Controlador do Estado do Jogo
+    private enum GameState { NORMAL, PLACING_TOWER_NORMAL, PLACING_TOWER_SNIPER, GAME_OVER } // Define os estados possíveis do jogo
+    private GameState gameState = GameState.NORMAL; // Cria a variável que guarda o estado atual do jogo
     
     Thread gameThread;
     /*
@@ -137,9 +137,14 @@ private void startNextRound() {
 }
 
     public void update(){
-        handleMouse(); 
 
-        // Gerenciamento de rounds
+        if (gameState == GameState.GAME_OVER){
+            return; // Não faz mais nada se o jogo acabou
+        }
+
+        handleMouse();
+
+        // Controlador de rounds
         if (!roundInProgress) {
             if (System.currentTimeMillis() - roundEndTime > timeBetweenRounds) {
                 startNextRound();
@@ -151,21 +156,26 @@ private void startNextRound() {
                 lastSpawnTime = System.currentTimeMillis();
             }
         }
-        
+
         // Atualiza todos os inimigos e remove os inativos
         enemies.removeIf(enemy -> !enemy.active);
         boolean anyEnemyActive = false;
         for (Enemy enemy : enemies) {
             if (enemy.active) {
                 enemy.update();
-                if (!enemy.active && enemy.health > 0) { // Chegou ao fim
-                    life--;
+                if (!enemy.active && enemy.health > 0) { // Verifica se o inimigo chegou ao fim do caminho sem ter morrido
+                    life--; // Subtrai 1 da variável life
+                    if (life <= 0) {
+                        life = 0; // Trava a vida em 0 para não ficar negativa
+                        gameState = GameState.GAME_OVER; // Se a vida chegar em zero muda o estado do jogo para GAME OVER
+                        System.out.println("GAME OVER!"); // Imprime a mensagem de fim de jogo no console
+                    }
                 }
                 anyEnemyActive = true;
             }
         }
 
-         // Verifica se o round terminou
+        // Verifica se o round terminou
         if (roundInProgress && enemiesSpawnedThisRound == enemiesPerRound[currentRound] && !anyEnemyActive) {
             roundInProgress = false;
             roundEndTime = System.currentTimeMillis();
@@ -295,7 +305,12 @@ private void startNextRound() {
          // Desenha o round atual
         String roundText = "Round: " + currentRound;
         g2.drawString(roundText, screenWidth / 2 - 50, 30);
-        
+
+        // Se o jogo acabou, desenha a tela de Game Over por cima de tudo
+        if (gameState == GameState.GAME_OVER) {
+            drawGameOverScreen(g2);
+        }
+
        
         g2.dispose(); // Boa prática para salvar algumas memórias
     }
@@ -331,5 +346,24 @@ private void startNextRound() {
             g2.setColor(new Color(255, 0, 0, 100)); // Vermelho transparente
         }
         g2.fillRect(gridCol * tileSize, gridRow * tileSize, tileSize, tileSize);
+    }
+
+    private void drawGameOverScreen(Graphics2D g2) {
+        // Desenha um fundo escuro semi-transparente
+        g2.setColor(new Color(0, 0, 0, 150)); // Cor preta com transparência
+        g2.fillRect(0, 0, screenWidth, screeHeight);
+
+        // Define a fonte e a cor do texto
+        g2.setColor(Color.RED);
+        g2.setFont(new Font("Arial", Font.BOLD, 50));
+        String gameOverText = "GAME OVER";
+
+        // Calcula a posição para centralizar o texto
+        int textWidth = g2.getFontMetrics().stringWidth(gameOverText);
+        int x = (screenWidth - textWidth) / 2;
+        int y = screeHeight / 2;
+
+        // Desenha o texto
+        g2.drawString(gameOverText, x, y);
     }
 }
