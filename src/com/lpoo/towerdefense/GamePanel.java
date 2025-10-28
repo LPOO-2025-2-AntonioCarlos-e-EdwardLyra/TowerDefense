@@ -22,27 +22,7 @@ public class GamePanel extends JPanel implements Runnable{
     
     int life = 3;
     int coins = 8;
-    
-    // Mapa do percurso
-    int[][] mapLayout = {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0},
-        {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0},
-        {1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-        {1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    };
-    
+
     // FPS
     int FPS = 60;
 
@@ -67,7 +47,8 @@ public class GamePanel extends JPanel implements Runnable{
     */
 
     KeyHandler keyH = new KeyHandler();
-    MouseHandler mouseH = new MouseHandler(); 
+    MouseHandler mouseH = new MouseHandler();
+    MapManager mapManager = new MapManager(this);
     List<Enemy> enemies;
     List<Tower> towers;
 
@@ -231,7 +212,7 @@ public class GamePanel extends JPanel implements Runnable{
                 removeTowerAt(gridCol, gridRow);
             }
         }
-        mouseH.resetClicks(); // Reseta os cliques após processá-los
+        mouseH.resetClicks(); // Reinicia os cliques após processá-los
     }
         
     private boolean canPlaceTower(int col, int row) {
@@ -243,10 +224,12 @@ public class GamePanel extends JPanel implements Runnable{
         if (row >= 14) {
             return false;
         }
-        // Está no caminho do inimigo?
-        if (mapLayout[row][col] >= 1) {
-            return false;
+
+        // Tem como contruir no local?
+        if (!mapManager.isPlaceable(col, row)) {
+            return false; // Não pode construir se for caminho(2) ou grama clara(3)
         }
+
         // Já existe uma torre lá?
         for (Tower tower : towers) {
             if (tower.col == col && tower.row == row) {
@@ -272,16 +255,9 @@ public class GamePanel extends JPanel implements Runnable{
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;// Converte o Graphics para a classe Graphics2D(o Graphics2D possui mais funções que o Graphics)
 
-        // Desenha o fundo do percurso
-         g2.setColor(new Color(100, 100, 100));
-        for(int row = 0; row < maxScreenRow; row++){
-            for(int col = 0; col < maxScreenCol; col++){
-                if(mapLayout[row][col] == 1){
-                    g2.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
-                }
-            }
-        }
-        
+        // Desenha o mapa através do MapManager
+        mapManager.draw(g2);
+
         for (Enemy enemy : enemies) {
             enemy.draw(g2); // Desenha cada inimigo
         }
