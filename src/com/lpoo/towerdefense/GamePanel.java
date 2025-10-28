@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.ImageIcon;
 
 public class GamePanel extends JPanel implements Runnable{
 
@@ -51,6 +52,7 @@ public class GamePanel extends JPanel implements Runnable{
     MapManager mapManager = new MapManager(this);
     List<Enemy> enemies;
     List<Tower> towers;
+    private Image coinImage;
 
     //Variáveis para posições e velocidade do player/teste
     int playerX = 100;
@@ -70,6 +72,15 @@ public class GamePanel extends JPanel implements Runnable{
         this.setFocusable(true);
         enemies = new ArrayList<>();
         towers = new ArrayList<>(); // Inicializa a lista de torres
+        try {
+            ImageIcon originalCoinIcon = new ImageIcon("assets/coins.png");
+            // Redimensione para 20x20 píxeis.
+            // Você usa uma fonte de 20, então 20x20 deve ficar perfeito.
+            coinImage = originalCoinIcon.getImage().getScaledInstance(23, 23, Image.SCALE_SMOOTH);
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar a imagem da moeda: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void startGameThread(){
@@ -277,8 +288,15 @@ public class GamePanel extends JPanel implements Runnable{
         String lifeText = "Life: " + life;
         g2.drawString(lifeText, screenWidth - 100, 30);
 
-        String coinsText = "Coins: " + coins;
-        g2.drawString(coinsText, 20, 30);
+        if (coinImage != null) {
+            // O Y=10 alinha o topo da imagem (de 20px de altura) com o topo do seu texto (que tem fonte 20 e está em Y=30)
+            g2.drawImage(coinImage, 20, 10, this);
+        }
+
+// Desenha o texto (número) das moedas
+        String coinsText = String.valueOf(coins);
+// O X=45 desenha o texto logo após o ícone (que começa em 20 e tem 20px de largura) + 5px de espaço
+        g2.drawString(coinsText, 45, 30);
        
          // Desenha o round atual
         String roundText = "Round: " + currentRound;
@@ -301,10 +319,10 @@ public class GamePanel extends JPanel implements Runnable{
 
         // Botão de compra de torre NORMAL
         g2.setColor(Color.BLUE);
-        g2.fillRect(1 * tileSize, 14 * tileSize + tileSize/4, tileSize*2, tileSize);
+        g2.fillRect(tileSize, 14 * tileSize + tileSize/4, tileSize*2, tileSize);
         g2.setColor(Color.WHITE);
-        g2.drawString("Normal", 1 * tileSize + 20, 14 * tileSize + tileSize/4 + 20);
-        g2.drawString("$" + Tower.NORMAL_COST, 1 * tileSize + 25, 14 * tileSize + tileSize/4 + 40);
+        g2.drawString("Normal", tileSize + 20, 14 * tileSize + tileSize/4 + 20);
+        g2.drawString("$" + Tower.NORMAL_COST, tileSize + 25, 14 * tileSize + tileSize/4 + 40);
 
         // Botão de compra de torre SNIPER
         g2.setColor(new Color(0, 100, 0));
