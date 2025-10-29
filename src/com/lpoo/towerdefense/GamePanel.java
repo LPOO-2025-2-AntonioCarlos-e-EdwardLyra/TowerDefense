@@ -10,11 +10,8 @@ import javax.swing.ImageIcon;
 public class GamePanel extends JPanel implements Runnable{
 
     // Configurações de tela
-
     final int originalTileSize = 16; // Esté vai ser o tamanho padrão de objetos do jogo como alguns inimigos
-
     final int scale = 2;
-
     final int tileSize = originalTileSize * scale; // 48x48 = Tamanho real dos objetos que vão ser exibidos na tela do jogo
     final int maxScreenCol = 16;
     final int maxScreenRow = 16;
@@ -23,20 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
     
     int life = 3;
     int coins = 8;
-
-    // FPS
     int FPS = 60;
-
-    // Controlador de Rounds
-    private int currentRound = 0;
-    private int[] enemiesPerRound = {0, 3, 5, 8, 16, 18}; // Round 0 é nulo, começamos do 1
-    private long spawnDelay = 1500; // 1.5 segundos entre inimigos
-    private long lastSpawnTime = 0;
-    private int enemiesSpawnedThisRound = 0;
-    private boolean roundInProgress = false;
-    private long roundEndTime = 0;
-    private boolean allRoundsCompleted = false;
-    private long timeBetweenRounds = 5000; // 5 segundos entre rounds
 
     // Controlador do Estado do Jogo
     private enum GameState { NORMAL, PLACING_TOWER_NORMAL, PLACING_TOWER_SNIPER, GAME_OVER } // Define os estados possíveis do jogo
@@ -49,18 +33,12 @@ public class GamePanel extends JPanel implements Runnable{
 
     KeyHandler keyH = new KeyHandler();
     MouseHandler mouseH = new MouseHandler();
-    MapManager mapManager = new MapManager(this);
+    MapManager mapManager;
+    RoundManager roundManager;
+
     List<Enemy> enemies;
     List<Tower> towers;
     private Image coinImage;
-
-    //Variáveis para posições e velocidade do player/teste
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
-    /*
-    O jogo não vai ter player e também não vai ter como controlar os inimigos, mas essas variáveis vão ser criadas para testar a funcionalidade do Key Input
-     */
 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screeHeight));
@@ -70,8 +48,12 @@ public class GamePanel extends JPanel implements Runnable{
         this.addMouseListener(mouseH); // Adiciona o listener de mouse
         this.addMouseMotionListener(mouseH); // Adiciona o listener de movimento do mouse
         this.setFocusable(true);
+
         enemies = new ArrayList<>();
         towers = new ArrayList<>(); // Inicializa a lista de torres
+        mapManager = new MapManager(this);
+        roundManager = new RoundManager(this);
+
         try {
             ImageIcon originalCoinIcon = new ImageIcon("assets/coins.png");
             // Redimensione para 20x20 píxeis.
@@ -117,18 +99,6 @@ public class GamePanel extends JPanel implements Runnable{
     }
 }
 
-    private void startNextRound() {
-        currentRound++;
-        if (currentRound < enemiesPerRound.length) {
-            enemiesSpawnedThisRound = 0;
-            roundInProgress = true;
-            System.out.println("Starting Round " + currentRound);
-        } else {
-            System.out.println("All rounds completed!");
-            allRoundsCompleted = true; // Ativa a trava
-            currentRound = enemiesPerRound.length - 1; // Trava o contador no último round (3)
-        }
-    }
 
     public void update(){
 
@@ -139,21 +109,11 @@ public class GamePanel extends JPanel implements Runnable{
         handleMouse();
 
         // Controlador de rounds
-        if (!roundInProgress && !allRoundsCompleted) {
-            if (System.currentTimeMillis() - roundEndTime > timeBetweenRounds) {
-                startNextRound();
-            }
-        } else {
-            if (enemiesSpawnedThisRound < enemiesPerRound[currentRound] && System.currentTimeMillis() - lastSpawnTime > spawnDelay) {
-                enemies.add(new Enemy(this));
-                enemiesSpawnedThisRound++;
-                lastSpawnTime = System.currentTimeMillis();
-            }
-        }
+        roundManager.update();
 
         // Atualiza todos os inimigos e remove os inativos
         enemies.removeIf(enemy -> !enemy.active);
-        boolean anyEnemyActive = false;
+
         for (Enemy enemy : enemies) {
             if (enemy.active) {
                 enemy.update();
@@ -165,16 +125,11 @@ public class GamePanel extends JPanel implements Runnable{
                         System.out.println("GAME OVER!"); // Imprime a mensagem de fim de jogo no console
                     }
                 }
-                anyEnemyActive = true;
             }
         }
 
         // Verifica se o round terminou
-        if (roundInProgress && enemiesSpawnedThisRound == enemiesPerRound[currentRound] && !anyEnemyActive) {
-            roundInProgress = false;
-            roundEndTime = System.currentTimeMillis();
-            System.out.println("Round " + currentRound + " completed!");
-        }
+        roundManager.checkRoundCompletion();
 
         for (Tower tower : towers) {
             tower.update(enemies);
@@ -299,7 +254,7 @@ public class GamePanel extends JPanel implements Runnable{
         g2.drawString(coinsText, 45, 30);
        
          // Desenha o round atual
-        String roundText = "Round: " + currentRound;
+        String roundText = "Round: " + roundManager.getCurrentRound();
         g2.drawString(roundText, screenWidth / 2 - 50, 30);
 
         // Se o jogo acabou, desenha a tela de Game Over por cima de tudo
