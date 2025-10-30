@@ -16,6 +16,12 @@ Esse é um projeto de aprendizado e desenvolvimento de um jogo estilo Tower Defe
 * **Biblioteca Gráfica**:
 * **Compilação e Execução**: JDK (Java Development Kit)
 
+## 🐗 Justificativa de Design
+
+A identidade visual e temática de **Boar x Hunter** foi escolhida para passar uma atmosfera **rústica** e ligada à **natureza**. A estética do jogo busca referências que remetem a um ambiente de fazenda ou roça.
+
+A inspiração central vem do conflito clássico do "homem do campo" contra "pragas"(Javalis), que ameaçam suas plantações e seu sustento.
+
 ## 🔨 Como Executar usando uma IDE (Intellij)
 
 1. Clone o repositório:

@@ -18,7 +18,5 @@ public class Main {
         window.setVisible(true); // Torna a janela visível
 
         gamePanel.startGameThread();
-
-        
     }
 }
