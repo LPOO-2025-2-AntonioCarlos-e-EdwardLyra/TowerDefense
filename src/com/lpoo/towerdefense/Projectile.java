@@ -11,14 +11,16 @@ public class Projectile {
     public boolean active = true;
     private int damage;
     private GamePanel gp;
+    private boolean appliesSlow;
 
-    public Projectile(GamePanel gp, int startX, int startY, Enemy target, int damage) {
+    public Projectile(GamePanel gp, int startX, int startY, Enemy target, int damage, boolean appliesSlow) {
         this.gp = gp;
         this.x = startX;
         this.y = startY;
         this.target = target;
-        this.speed = 5; // Velocidade do projétil
+        this.speed = 5;
         this.damage = damage;
+        this.appliesSlow = appliesSlow;
     }
 
     public void update() {
@@ -36,10 +38,13 @@ public class Projectile {
         x += speed * Math.cos(angle);
         y += speed * Math.sin(angle);
 
-        // Verifica a colisão
+        // Verifica a colisão e também pode aplicar o slow
         double distance = Point.distance(x, y, targetX, targetY);
         if (distance < speed) {
             target.takeDamage(damage);
+            if (appliesSlow) {
+                target.applySlow(1500); // Aplica o slow por 1.5 segundos
+            }
             active = false;
         }
     }

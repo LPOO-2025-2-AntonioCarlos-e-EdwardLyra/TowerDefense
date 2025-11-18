@@ -71,7 +71,13 @@ public class Tower {
         if (target != null) {
             int towerCenterX = x + gp.tileSize / 2;
             int towerCenterY = y + gp.tileSize / 2;
-            projectiles.add(new Projectile(gp, towerCenterX, towerCenterY, target, this.damage));
+
+            // 1. Adicione esta linha para verificar se a torre é Sniper
+            boolean shouldSlow = (this.type == TowerType.SNIPER);
+
+            // 2. Modifique a linha 74 para passar 'shouldSlow' como o 6º argumento
+            projectiles.add(new Projectile(gp, towerCenterX, towerCenterY, target, this.damage, shouldSlow));
+
             lastFireTime = System.currentTimeMillis();
         }
     }

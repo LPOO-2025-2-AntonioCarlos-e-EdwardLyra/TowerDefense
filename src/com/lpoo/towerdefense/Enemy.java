@@ -15,12 +15,11 @@ public class Enemy {
     private int speed = 1; // Velocidade de movimento em pixels
     public int health;
     public boolean active = true;
-
+    private long slowEffectEndTime = 0; // Controla quando o slow acaba
+    private boolean isSlowed = false;
+    private int updateCounter = 0; // Contador para pular updates
     private List<Point> path;
     private int currentWaypointIndex;
-
-    // Variáveis para controlar o movimento de 1 segundo
-    
 
     public Enemy(GamePanel gp) {
         this.gp = gp;
@@ -49,11 +48,30 @@ public class Enemy {
         y = startPoint.y;
         currentWaypointIndex++; // Prepara para se mover para o próximo ponto
     }
-    
-    public void update() {  
+
+    public void applySlow(long durationMillis) {
+        // Aplica o slow (Define o tempo que dura)
+        this.isSlowed = true;
+        this.slowEffectEndTime = System.currentTimeMillis() + durationMillis;
+    }
+
+    public void update() {
+        if (isSlowed && System.currentTimeMillis() > slowEffectEndTime) {
+            isSlowed = false;
+        }
+
+        // Lógica para pular updates (frames) se estiver lento
+        if (isSlowed) {
+            updateCounter++;
+            if (updateCounter % 2 != 0) {
+                return;
+            }
+        }
+
         if (!active) {
             return;
         }
+
         // Verifica se o inimigo ainda tem um caminho a seguir
         if (currentWaypointIndex < path.size()) {
             Point target = path.get(currentWaypointIndex);
@@ -98,8 +116,6 @@ public class Enemy {
             gp.coins += 3; 
         }
     }
-
-    
 
     public void draw(Graphics2D g2) {
         if(!active) {
