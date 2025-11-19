@@ -1,7 +1,14 @@
-```mermaid
+````mermaid
 classDiagram
     direction TB
 
+    %% --- INTERFACES ---
+    class Drawable {
+        <<Interface>>
+        +draw(Graphics2D)
+    }
+
+    %% --- CLASSES PRINCIPAIS ---
     class Main {
         +static main(String[])
     }
@@ -12,10 +19,6 @@ classDiagram
         -int life
         -int coins
         -GameState gameState
-        -KeyHandler keyH
-        -MouseHandler mouseH
-        -MapManager mapManager
-        -RoundManager roundManager
         -List~Enemy~ enemies
         -List~Tower~ towers
         +startGameThread()
@@ -24,17 +27,13 @@ classDiagram
         +paintComponent(Graphics)
         -handleMouse()
         -canPlaceTower(int, int)
-        -removeTowerAt(int, int)
     }
 
+    %% --- INPUTS ---
     class KeyHandler {
         <<KeyListener>>
         +boolean upPressed
         +boolean downPressed
-        +boolean leftPressed
-        +boolean rightPressed
-        +keyPressed(KeyEvent)
-        +keyReleased(KeyEvent)
     }
 
     class MouseHandler {
@@ -42,123 +41,89 @@ classDiagram
         +int mouseX
         +int mouseY
         +boolean leftClicked
-        +boolean rightClicked
-        +mousePressed(MouseEvent)
-        +mouseMoved(MouseEvent)
-        +mouseDragged(MouseEvent)
-        +resetClicks()
     }
 
+    %% --- GERENCIADORES ---
     class MapManager {
-        -GamePanel gp
         -int[][] mapLayout
-        -Color PATH_COLOR
-        +MapManager(GamePanel)
         +draw(Graphics2D)
         +isPlaceable(int, int)
     }
 
     class RoundManager {
-        -GamePanel gp
         -int currentRound
         -int[] enemiesPerRound
-        -boolean roundInProgress
-        +RoundManager(GamePanel)
         +update()
         -startNextRound()
-        +checkRoundCompletion()
-        +getCurrentRound()
     }
 
+    %% --- ENTIDADES DO JOGO ---
     class Tower {
-        -GamePanel gp
         -TowerType type
+        -int level
         -List~Projectile~ projectiles
         +int cost
-        -int attackRange
-        -long fireRate
-        -int damage
-        +Tower(GamePanel, int, int, TowerType)
+        +upgrade()
         +update(List~Enemy~)
-        -findTarget(List~Enemy~)
-        +draw(Graphics2D)
-    }
-
-    class Enemy {
-        -GamePanel gp
-        +int x, y
-        +int health
-        -int speed
-        +boolean active
-        -List~Point~ path
-        +Enemy(GamePanel)
-        +update()
-        +takeDamage(int)
         +draw(Graphics2D)
     }
 
     class Projectile {
-        -GamePanel gp
         -Enemy target
-        -int speed
-        -int damage
-        +boolean active
-        +Projectile(GamePanel, int, int, Enemy, int)
+        -boolean appliesSlow
         +update()
         +draw(Graphics2D)
     }
 
-    enum GameState {
+    class Enemy {
+        -int type
+        +int health
+        +int speed
+        +update()
+        +takeDamage(int)
+        +applySlow(long)
+        +draw(Graphics2D)
+    }
+
+    %% --- ENUMS ---
+    class GameState {
+        <<Enumeration>>
         NORMAL
-        PLACING_TOWER_NORMAL
-        PLACING_TOWER_SNIPER
+        PLACING_TOWER
         GAME_OVER
     }
 
-    enum TowerType {
+    class TowerType {
+        <<Enumeration>>
         NORMAL
         SNIPER
     }
 
-    ' --- Relacionamentos ---
+    %% --- RELACIONAMENTOS ---
 
-    ' Main cria GamePanel
+    %% Implementação de Interface (O que tu já fizeste!)
+    MapManager ..|> Drawable
+    Tower ..|> Drawable
+    Enemy ..|> Drawable
+    Projectile ..|> Drawable
+
+    %% Main e GamePanel
     Main ..> GamePanel : cria
-
-    ' GamePanel (Agregação/Composição)
     GamePanel "1" o-- "1" KeyHandler
     GamePanel "1" o-- "1" MouseHandler
     GamePanel "1" o-- "1" MapManager
     GamePanel "1" o-- "1" RoundManager
-    GamePanel "1" o-- "0..*" Enemy : contém
-    GamePanel "1" o-- "0..*" Tower : contém
+    
+    %% Listas e Conteúdo
+    GamePanel "1" o-- "0..*" Enemy : lista
+    GamePanel "1" o-- "0..*" Tower : lista
 
-    ' Enums Aninhados (Composição)
-    GamePanel +-- GameState
-    Tower +-- TowerType
-
-    ' Associações (Outras classes referenciam GamePanel)
-    MapManager --> GamePanel : "1"
-    RoundManager --> GamePanel : "1"
-    Tower --> GamePanel : "1"
-    Enemy --> GamePanel : "1"
-    Projectile --> GamePanel : "1"
-
-    ' Tower cria Projectiles (Agregação)
-    Tower "1" o-- "0..*" Projectile : cria
-
-    ' RoundManager cria Enemies (Dependência)
-    RoundManager ..> Enemy : cria
-
-    ' Projectile mira em um Enemy (Associação)
-    Projectile "1" --> "1" Enemy : mira
-
-    ' Tower procura Enemies (Dependência)
-    Tower ..> Enemy : usa
-
-    ' Herança / Implementação
-    GamePanel ..|> Runnable
-    'GamePanel --|> JPanel (Implícito pela GUI)
-    MouseHandler --|> MouseAdapter
-    KeyHandler ..|> KeyListener
-```
+    %% Associações Internas
+    Tower "1" *-- "0..*" Projectile : cria
+    Projectile "1" --> "1" Enemy : persegue
+    RoundManager ..> Enemy : instancia
+    
+    %% Enums
+    GamePanel ..> GameState
+    Tower ..> TowerType
+````
