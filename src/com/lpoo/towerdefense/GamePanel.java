@@ -144,7 +144,7 @@ public class GamePanel extends JPanel implements Runnable{
             int gridRow = mouseY / tileSize;
 
              // 1. Lógica de Compra na UI
-            if (gridRow >= 14) { // Clicou na área da UI
+            if (gridRow >= 14) {
                 if (gridCol >= 1 && gridCol <= 2 && coins >= Tower.NORMAL_COST) {
                     gameState = GameState.PLACING_TOWER_NORMAL;
                 } else if (gridCol >= 3 && gridCol <= 4 && coins >= Tower.SNIPER_COST) {
@@ -153,17 +153,31 @@ public class GamePanel extends JPanel implements Runnable{
             } 
 
             // 2. Lógica de Posicionamento
-            else if (gameState == GameState.PLACING_TOWER_NORMAL) {
-                if (canPlaceTower(gridCol, gridRow)) {
-                    towers.add(new Tower(this, gridCol, gridRow, Tower.TowerType.NORMAL));
-                    coins -= Tower.NORMAL_COST;
-                    gameState = GameState.NORMAL;
+            else if (gameState == GameState.PLACING_TOWER_NORMAL || gameState == GameState.PLACING_TOWER_SNIPER) {
+
+                Tower.TowerType typeToPlace = (gameState == GameState.PLACING_TOWER_NORMAL)
+                        ? Tower.TowerType.NORMAL
+                        : Tower.TowerType.SNIPER;
+
+                int cost = (typeToPlace == Tower.TowerType.NORMAL) ? Tower.NORMAL_COST : Tower.SNIPER_COST;
+
+                Tower existingTower = getTowerAt(gridCol, gridRow);
+
+                if (existingTower != null) {
+
+                    if (existingTower.type == typeToPlace && coins >= cost) {
+                        existingTower.upgrade();
+                        coins -= cost;
+                        gameState = GameState.NORMAL;
+                        System.out.println("Torre evoluída para o nível " + existingTower.level);
+                    }
                 }
-            } else if (gameState == GameState.PLACING_TOWER_SNIPER) {
-                if (canPlaceTower(gridCol, gridRow)) {
-                    towers.add(new Tower(this, gridCol, gridRow, Tower.TowerType.SNIPER));
-                    coins -= Tower.SNIPER_COST;
-                    gameState = GameState.NORMAL;
+                else {
+                    if (canPlaceTower(gridCol, gridRow)) {
+                        towers.add(new Tower(this, gridCol, gridRow, typeToPlace));
+                        coins -= cost;
+                        gameState = GameState.NORMAL;
+                    }
                 }
             }
         }
@@ -316,5 +330,14 @@ public class GamePanel extends JPanel implements Runnable{
 
         // Desenha o texto
         g2.drawString(gameOverText, x, y);
+    }
+
+    public Tower getTowerAt(int col, int row) {
+        for (Tower tower : towers) {
+            if (tower.col == col && tower.row == row) {
+                return tower;
+            }
+        }
+        return null;
     }
 }
