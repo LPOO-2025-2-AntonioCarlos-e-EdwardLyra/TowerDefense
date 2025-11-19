@@ -43,23 +43,32 @@ public class RoundManager {
         if (allRoundsCompleted) {
             return; // Não faz nada se todos os rounds acabaram
         }
-
         // Lógica de tempo entre rounds
         if (!roundInProgress) {
             if (System.currentTimeMillis() - roundEndTime > timeBetweenRounds) {
                 startNextRound();
             }
         }
-        // Lógica de tempo durante um round (spawn de inimigos)
-        else {
-            int enemiesToSpawn = enemiesPerRound[currentRound];
-            if (enemiesSpawnedThisRound < enemiesToSpawn && System.currentTimeMillis() - lastSpawnTime > spawnDelay) {
-                // Usa a referência 'gp' para adicionar inimigos na lista do GamePanel
-                gp.enemies.add(new Enemy(gp));
-                enemiesSpawnedThisRound++;
-                lastSpawnTime = System.currentTimeMillis();
+        // Lógica de spawn de inimigos
+        int enemiesToSpawn = enemiesPerRound[currentRound];
+        if (enemiesSpawnedThisRound < enemiesToSpawn && System.currentTimeMillis() - lastSpawnTime > spawnDelay) {
+            
+            int enemyType = 0;
+
+            if ((enemiesSpawnedThisRound + 1) % 3 == 0) {
+                enemyType = 2;
             }
+            else if ((enemiesSpawnedThisRound + 1) % 5 == 0) {
+                enemyType = 1;
+            }
+
+            // Cria o inimigo com o tipo escolhido
+            gp.enemies.add(new Enemy(gp, enemyType));
+
+            enemiesSpawnedThisRound++;
+            lastSpawnTime = System.currentTimeMillis();
         }
+
     }
 
     // Verifica se um round em progresso terminou

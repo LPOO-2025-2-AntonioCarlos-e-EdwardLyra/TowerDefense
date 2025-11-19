@@ -20,12 +20,26 @@ public class Enemy {
     private int updateCounter = 0; // Contador para pular updates
     private List<Point> path;
     private int currentWaypointIndex;
+    private int type;
 
-    public Enemy(GamePanel gp) {
+    public Enemy(GamePanel gp, int type) {
         this.gp = gp;
-        this.health = 3;
+        this.type = type;
         buildPath();
         setDefaultValues();
+
+        if (type == 0) { // Javali
+            this.speed = 1;
+            this.health = 3;
+        }
+        else if (type == 1) { // Javali Alfa
+            this.speed = 1;
+            this.health = 10;
+        }
+        else if (type == 2) { // Leitão
+            this.speed = 2;
+            this.health = 3;
+        }
     }
 
     private void buildPath() {
@@ -127,7 +141,14 @@ public class Enemy {
         triangle.addPoint(x, y + gp.tileSize);     // Ponto inferior esquerdo
         triangle.addPoint(x + gp.tileSize, y + gp.tileSize); // Ponto inferior direito
 
-        g2.setColor(Color.RED);
+        if (type == 0) {
+            g2.setColor(Color.RED); // Javali = Vermelho
+        } else if (type == 1) {
+            g2.setColor(new Color(75, 0, 130)); // Javali Alpha = Roxo Escuro
+        } else if (type == 2) {
+            g2.setColor(Color.PINK); // Leitão = Rosa
+        }
+
         g2.fill(triangle);
 
         // Desenha a vida do inimigo
