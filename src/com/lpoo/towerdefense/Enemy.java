@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Font;
 
-public class Enemy {
+public class Enemy implements Drawable {
 
     private GamePanel gp;
     public int x, y;
@@ -131,6 +131,7 @@ public class Enemy {
         }
     }
 
+    @Override
     public void draw(Graphics2D g2) {
         if(!active) {
             return;

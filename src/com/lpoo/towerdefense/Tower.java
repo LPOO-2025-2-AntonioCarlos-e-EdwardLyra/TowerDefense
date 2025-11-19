@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Font;
 
-public class Tower {
+public class Tower implements Drawable {
 
     public enum TowerType {
         NORMAL, SNIPER
@@ -130,6 +130,7 @@ public class Tower {
         return target;
     }
 
+    @Override
     public void draw(Graphics2D g2) {
         // Cor baseada no tipo
         g2.setColor(type == TowerType.NORMAL ? Color.BLUE : new Color(0, 100, 0)); // Azul ou Verde Escuro

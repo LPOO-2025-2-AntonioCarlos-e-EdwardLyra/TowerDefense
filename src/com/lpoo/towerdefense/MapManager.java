@@ -3,7 +3,7 @@ package com.lpoo.towerdefense;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class MapManager {
+public class MapManager implements Drawable {
 
     GamePanel gp;
 
@@ -38,6 +38,7 @@ public class MapManager {
     }
 
     // Desenha o mapa com caminhos e gramas na tela
+    @Override
     public void draw(Graphics2D g2) {
 
         for (int row = 0; row < gp.maxScreenRow; row++) {
