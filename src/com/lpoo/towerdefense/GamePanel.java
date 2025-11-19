@@ -165,11 +165,15 @@ public class GamePanel extends JPanel implements Runnable{
 
                 if (existingTower != null) {
 
-                    if (existingTower.type == typeToPlace && coins >= cost) {
+                    if (existingTower.type == typeToPlace && coins >= cost && existingTower.level < 3) {
                         existingTower.upgrade();
                         coins -= cost;
                         gameState = GameState.NORMAL;
                         System.out.println("Torre evoluída para o nível " + existingTower.level);
+                    }
+                    else if (existingTower.level >= 3) {
+                        System.out.println("Torre já está no nível máximo (3)!");
+                        gameState = GameState.NORMAL;
                     }
                 }
                 else {
