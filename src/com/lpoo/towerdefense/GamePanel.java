@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int screeHeight = tileSize * maxScreenRow;// (height = altura) = 48 x 12 = 576 pixels
     
     int life = 3;
-    int coins = 8;
+    int coins = 6;
     int FPS = 60;
 
     // Controlador do Estado do Jogo
@@ -180,6 +180,7 @@ public class GamePanel extends JPanel implements Runnable{
         }
         mouseH.resetClicks(); // Reinicia os cliques após processá-los
     }
+
         
     private boolean canPlaceTower(int col, int row) {
         // Fora dos limites do mapa?

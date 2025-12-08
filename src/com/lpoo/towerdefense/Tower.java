@@ -25,7 +25,7 @@ public class Tower {
     private long lastFireTime = 0;
 
     // Custos estáticos para acesso externo
-    public static final int NORMAL_COST = 8;
+    public static final int NORMAL_COST = 6;
     public static final int SNIPER_COST = 11;
 
     public Tower(GamePanel gp, int col, int row, TowerType type) {
