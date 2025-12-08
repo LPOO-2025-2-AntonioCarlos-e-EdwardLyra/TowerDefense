@@ -4,8 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Font;
 
-public class Tower {
+public class Tower implements Drawable {
 
     public enum TowerType {
         NORMAL, SNIPER
@@ -17,12 +18,13 @@ public class Tower {
     private List<Projectile> projectiles;
 
     // Atributos da Torre
-    private TowerType type;
+    public TowerType type;
     public int cost;
     private int attackRange;
     private long fireRate;
     private int damage;
     private long lastFireTime = 0;
+    public int level = 1;
 
     // Custos estáticos para acesso externo
     public static final int NORMAL_COST = 6;
@@ -51,6 +53,20 @@ public class Tower {
                 this.fireRate = 3500; // 3,5 segundos
                 this.damage = 2;
                 break;
+        }
+    }
+
+    public void upgrade() {
+        level++;
+
+        if (type == TowerType.NORMAL) {
+            damage += 1;
+            attackRange += 20;
+            fireRate -= 100;
+        }
+        else if (type == TowerType.SNIPER) {
+            damage += 2;
+            fireRate -= 200;
         }
     }
             
@@ -114,10 +130,15 @@ public class Tower {
         return target;
     }
 
+    @Override
     public void draw(Graphics2D g2) {
         // Cor baseada no tipo
         g2.setColor(type == TowerType.NORMAL ? Color.BLUE : new Color(0, 100, 0)); // Azul ou Verde Escuro
         g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 12));
+        g2.drawString("Lv" + level, x + 10, y + 20);
 
         for (Projectile p : projectiles) {
             p.draw(g2);

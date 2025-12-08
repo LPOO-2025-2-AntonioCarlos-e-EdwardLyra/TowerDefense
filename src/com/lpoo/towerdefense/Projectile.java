@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-public class Projectile {
+public class Projectile implements Drawable{
     public int x, y;
     private int speed;
     private Enemy target;
@@ -49,6 +49,7 @@ public class Projectile {
         }
     }
 
+    @Override
     public void draw(Graphics2D g2) {
         if (active) {
             g2.setColor(Color.YELLOW);
