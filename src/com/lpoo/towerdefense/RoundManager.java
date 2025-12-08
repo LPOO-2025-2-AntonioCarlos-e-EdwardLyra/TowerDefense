@@ -63,7 +63,25 @@ public class RoundManager {
             }
 
             // Cria o inimigo com o tipo escolhido
-            gp.enemies.add(new Enemy(gp, enemyType));
+            // ... dentro do método update() ...
+
+// EM VEZ DE: gp.enemies.add(new Enemy(gp, enemyType)); 
+// USE ISTO:
+
+    Enemy newEnemy;
+
+    if (enemyType == 1) {
+        newEnemy = new JavaliAlfa(gp);
+    } else if (enemyType == 2) {
+        newEnemy = new Leitao(gp);
+    } else {
+    // Default (tipo 0)
+        newEnemy = new Javali(gp);
+    }
+
+    gp.enemies.add(newEnemy);
+
+// ... continua o código ...
 
             enemiesSpawnedThisRound++;
             lastSpawnTime = System.currentTimeMillis();
