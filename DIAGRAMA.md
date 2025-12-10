@@ -1,129 +1,166 @@
 ````mermaid
 classDiagram
     direction TB
+%% --- INTERFACES ---
+class Drawable {
+<<Interface>>
++draw(Graphics2D g2)
+}
 
-    %% --- INTERFACES ---
-    class Drawable {
-        <<Interface>>
-        +draw(Graphics2D)
+%% --- EXCEÇÕES ---
+class SaldoInsuficienteException {
+<<Exception>>
++SaldoInsuficienteException(String mensagem)
+}
+
+%% --- CLASSES PRINCIPAIS ---
+class Main {
++static main(String[])
+}
+
+class GamePanel {
+<<JPanel>>
+<<Runnable>>
+-int life
+-int coins
+-GameState gameState
+-List~Enemy~ enemies
+-List~Tower~ towers
++startGameThread()
++run()
++update()
++paintComponent(Graphics)
+-handleMouse()
+-gastarMoedas(int) void
+-canPlaceTower(int, int) boolean
+}
+
+%% --- INPUTS ---
+class KeyHandler {
+<<KeyListener>>
++boolean upPressed
++boolean downPressed
+}
+
+class MouseHandler {
+<<MouseAdapter>>
++int mouseX
++int mouseY
++boolean leftClicked
+}
+
+%% --- GERENCIADORES ---
+class MapManager {
+-int[][] mapLayout
++draw(Graphics2D)
++isPlaceable(int, int)
+}
+
+class RoundManager {
+-int currentRound
+-int[] enemiesPerRound
+-long spawnDelay
++update()
+-startNextRound()
+-spawnEnemy(int enemyType)
+}
+
+%% --- ENTIDADES DO JOGO (DEFESA) ---
+class Tower {
+-TowerType type
+-int level
+-List~Projectile~ projectiles
++int cost
++upgrade()
++update(List~Enemy~)
++draw(Graphics2D)
+-findTarget(List~Enemy~) Enemy
+}
+
+class Projectile {
+-Enemy target
+-boolean appliesSlow
++update()
++draw(Graphics2D)
+}
+
+%% --- ENTIDADES DO JOGO (INIMIGOS) ---
+class Enemy {
+<<Abstract>>
+#int speed
++int health
++boolean active
+#List~Point~ path
++update()
++takeDamage(int)
++applySlow(long)
++draw(Graphics2D)
++abstract getColor() Color
+}
+
+class Javali {
++getColor() Color
+}
+
+class Leitao {
++getColor() Color
+}
+
+class JavaliAlfa {
++getColor() Color
+}
+
+%% --- ENUMS ---
+class GameState {
+<<Enumeration>>
+NORMAL
+PLACING_TOWER
+GAME_OVER
     }
 
-    %% --- CLASSES PRINCIPAIS ---
-    class Main {
-        +static main(String[])
-    }
+class TowerType {
+<<Enumeration>>
+NORMAL
+SNIPER
+}
 
-    class GamePanel {
-        <<JPanel>>
-        <<Runnable>>
-        -int life
-        -int coins
-        -GameState gameState
-        -List~Enemy~ enemies
-        -List~Tower~ towers
-        +startGameThread()
-        +run()
-        +update()
-        +paintComponent(Graphics)
-        -handleMouse()
-        -canPlaceTower(int, int)
-    }
+%% --- RELACIONAMENTOS ---
 
-    %% --- INPUTS ---
-    class KeyHandler {
-        <<KeyListener>>
-        +boolean upPressed
-        +boolean downPressed
-    }
+%% Implementação de Interface
+MapManager ..|> Drawable
+Tower ..|> Drawable
+Enemy ..|> Drawable
+Projectile ..|> Drawable
 
-    class MouseHandler {
-        <<MouseAdapter>>
-        +int mouseX
-        +int mouseY
-        +boolean leftClicked
-    }
+%% Estrutura Principal
+Main ..> GamePanel : cria
+GamePanel "1" *-- "1" KeyHandler
+GamePanel "1" *-- "1" MouseHandler
+GamePanel "1" *-- "1" MapManager
+GamePanel "1" *-- "1" RoundManager
 
-    %% --- GERENCIADORES ---
-    class MapManager {
-        -int[][] mapLayout
-        +draw(Graphics2D)
-        +isPlaceable(int, int)
-    }
+%% Exceções
+GamePanel ..> SaldoInsuficienteException : lança
 
-    class RoundManager {
-        -int currentRound
-        -int[] enemiesPerRound
-        +update()
-        -startNextRound()
-    }
+%% Listas e Conteúdo
+GamePanel "1" o-- "0..*" Enemy : lista
+GamePanel "1" o-- "0..*" Tower : lista
 
-    %% --- ENTIDADES DO JOGO ---
-    class Tower {
-        -TowerType type
-        -int level
-        -List~Projectile~ projectiles
-        +int cost
-        +upgrade()
-        +update(List~Enemy~)
-        +draw(Graphics2D)
-    }
+%% Torres e Projéteis
+Tower "1" *-- "0..*" Projectile : possui
+Tower ..> TowerType : usa
+Projectile --> "1" Enemy : persegue
 
-    class Projectile {
-        -Enemy target
-        -boolean appliesSlow
-        +update()
-        +draw(Graphics2D)
-    }
+%% Herança de Inimigos
+Javali --|> Enemy
+Leitao --|> Enemy
+JavaliAlfa --|> Enemy
 
-    class Enemy {
-        -int type
-        +int health
-        +int speed
-        +update()
-        +takeDamage(int)
-        +applySlow(long)
-        +draw(Graphics2D)
-    }
+%% Lógica de Rounds (Factory Method)
+RoundManager ..> Javali : cria
+RoundManager ..> Leitao : cria
+RoundManager ..> JavaliAlfa : cria
 
-    %% --- ENUMS ---
-    class GameState {
-        <<Enumeration>>
-        NORMAL
-        PLACING_TOWER
-        GAME_OVER
-    }
-
-    class TowerType {
-        <<Enumeration>>
-        NORMAL
-        SNIPER
-    }
-
-    %% --- RELACIONAMENTOS ---
-
-    %% Implementação de Interface (O que tu já fizeste!)
-    MapManager ..|> Drawable
-    Tower ..|> Drawable
-    Enemy ..|> Drawable
-    Projectile ..|> Drawable
-
-    %% Main e GamePanel
-    Main ..> GamePanel : cria
-    GamePanel "1" o-- "1" KeyHandler
-    GamePanel "1" o-- "1" MouseHandler
-    GamePanel "1" o-- "1" MapManager
-    GamePanel "1" o-- "1" RoundManager
-    
-    %% Listas e Conteúdo
-    GamePanel "1" o-- "0..*" Enemy : lista
-    GamePanel "1" o-- "0..*" Tower : lista
-
-    %% Associações Internas
-    Tower "1" *-- "0..*" Projectile : cria
-    Projectile "1" --> "1" Enemy : persegue
-    RoundManager ..> Enemy : instancia
-    
-    %% Enums
-    GamePanel ..> GameState
-    Tower ..> TowerType
+%% Estados
+GamePanel ..> GameState : usa
 ````
