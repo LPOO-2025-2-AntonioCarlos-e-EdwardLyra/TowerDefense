@@ -41,52 +41,37 @@ public class RoundManager {
     //Controla o tempo para iniciar rounds e spawnar inimigos
     public void update() {
         if (allRoundsCompleted) {
-            return; // Não faz nada se todos os rounds acabaram
+            return;
         }
+
         // Lógica de tempo entre rounds
         if (!roundInProgress) {
             if (System.currentTimeMillis() - roundEndTime > timeBetweenRounds) {
                 startNextRound();
             }
         }
+
         // Lógica de spawn de inimigos
         int enemiesToSpawn = enemiesPerRound[currentRound];
         if (enemiesSpawnedThisRound < enemiesToSpawn && System.currentTimeMillis() - lastSpawnTime > spawnDelay) {
-            
-            int enemyType = 0;
+
+            // 1. Decide QUAL inimigo criar
+            int enemyType = 0; // 0 = Javali Normal
 
             if ((enemiesSpawnedThisRound + 1) % 3 == 0) {
-                enemyType = 2;
+                enemyType = 2; // Leitao (a cada 3)
             }
             else if ((enemiesSpawnedThisRound + 1) % 5 == 0) {
-                enemyType = 1;
+                enemyType = 1; // JavaliAlfa (a cada 5)
             }
 
-            // Cria o inimigo com o tipo escolhido
-            // ... dentro do método update() ...
+            // 2. Chama a Fábrica para criar e adicionar (O CÓDIGO LIMPO FICA AQUI)
+            spawnEnemy(enemyType);
 
-// EM VEZ DE: gp.enemies.add(new Enemy(gp, enemyType)); 
-// USE ISTO:
-
-    Enemy newEnemy;
-
-    if (enemyType == 1) {
-        newEnemy = new JavaliAlfa(gp);
-    } else if (enemyType == 2) {
-        newEnemy = new Leitao(gp);
-    } else {
-    // Default (tipo 0)
-        newEnemy = new Javali(gp);
-    }
-
-    gp.enemies.add(newEnemy);
-
-// ... continua o código ...
-
+            // 3. Atualiza contadores
             enemiesSpawnedThisRound++;
             lastSpawnTime = System.currentTimeMillis();
         }
-
     }
 
     // Verifica se um round em progresso terminou
@@ -102,6 +87,20 @@ public class RoundManager {
             roundEndTime = System.currentTimeMillis(); // Inicia o timer para o próximo round
             System.out.println("Round " + currentRound + " completed!");
         }
+    }
+    private void spawnEnemy(int enemyType) {
+        Enemy newEnemy;
+
+        if (enemyType == 1) {
+            newEnemy = new JavaliAlfa(gp);
+        } else if (enemyType == 2) {
+            newEnemy = new Leitao(gp);
+        } else {
+            // Default (tipo 0 ou qualquer outro desconhecido vira Javali normal)
+            newEnemy = new Javali(gp);
+        }
+
+        gp.enemies.add(newEnemy);
     }
 
     // Retorna o número do round atual
