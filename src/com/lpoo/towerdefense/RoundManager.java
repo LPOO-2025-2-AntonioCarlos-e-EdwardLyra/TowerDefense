@@ -6,8 +6,8 @@ public class RoundManager {
 
     // Configuração dos rounds
     private int currentRound = 0;
-    private final int[] enemiesPerRound = {0, 3, 5, 8, 16, 18}; // Round 0 é nulo
-    private final long spawnDelay = 1500; // 1.5 segundos entre cada spawn
+    private final int[] enemiesPerRound = {0, 3, 5, 8, 16, 18, 25, 35, 50 , 70, 85}; // Round 0 é nulo
+    private final long spawnDelay = 1000; // 1 segundo entre cada spawn
     private final long timeBetweenRounds = 5000; // 5 segundos de pausa entre rounds
 
     // Controle de estado
