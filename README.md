@@ -44,4 +44,4 @@ Este projeto possui a licença MIT.
 
 * Antônio Carlos
 * Edward Lyra
-* 
+

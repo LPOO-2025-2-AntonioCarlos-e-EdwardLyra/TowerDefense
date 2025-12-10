@@ -8,31 +8,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Font;
 
-// Agora é 'abstract'. Não pode ser instanciada diretamente com 'new Enemy()'
+// CLASSE ABSTRATA BASE
 public abstract class Enemy implements Drawable {
 
-    protected GamePanel gp; // 'protected' para as subclasses acessarem se precisarem
+    // O protected vai ser acessíveis apenas por esta classe e a suas filhas
+    protected GamePanel gp;
     public int x, y;
     protected int speed;
     public int health;
     public boolean active = true;
-    
-    // Controle de Slow
+
     protected long slowEffectEndTime = 0;
     protected boolean isSlowed = false;
     protected int updateCounter = 0;
-    
-    // Caminho
+
     protected List<Point> path;
     protected int currentWaypointIndex;
 
-    // Construtor genérico
     public Enemy(GamePanel gp, int speed, int health) {
         this.gp = gp;
         this.speed = speed;
         this.health = health;
-        buildPath();
-        setDefaultValues();
+        buildPath(); // Cria o caminho assim que o inimigo nasce
+        setDefaultValues(); // Posiciona o inimigo no início
     }
 
     public abstract Color getColor();
@@ -103,6 +101,7 @@ public abstract class Enemy implements Drawable {
     public void draw(Graphics2D g2) {
         if(!active) return;
 
+        // Cria o formato do inimigo
         Polygon triangle = new Polygon();
         triangle.addPoint(x + gp.tileSize / 2, y);
         triangle.addPoint(x, y + gp.tileSize);
@@ -112,6 +111,7 @@ public abstract class Enemy implements Drawable {
         
         g2.fill(triangle);
 
+        // Desenha a vida sobre o inimigo
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         g2.drawString(String.valueOf(health), x + gp.tileSize / 2 - 4, y + gp.tileSize / 2 + 4);

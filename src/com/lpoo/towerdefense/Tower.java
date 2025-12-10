@@ -88,10 +88,7 @@ public class Tower implements Drawable {
             int towerCenterX = x + gp.tileSize / 2;
             int towerCenterY = y + gp.tileSize / 2;
 
-            // 1. Adicione esta linha para verificar se a torre é Sniper
             boolean shouldSlow = (this.type == TowerType.SNIPER);
-
-            // 2. Modifique a linha 74 para passar 'shouldSlow' como o 6º argumento
             projectiles.add(new Projectile(gp, towerCenterX, towerCenterY, target, this.damage, shouldSlow));
 
             lastFireTime = System.currentTimeMillis();
@@ -104,7 +101,7 @@ public class Tower implements Drawable {
         int towerCenterY = y + gp.tileSize / 2;
 
         if (type == TowerType.SNIPER) {
-            // Lógica da Sniper: Acha o inimigo com mais vida no alcance
+            // Acha o inimigo com mais vida no alcance
             int maxHealth = -1;
             for (Enemy enemy : enemies) {
                 if (enemy.active) {
@@ -116,7 +113,7 @@ public class Tower implements Drawable {
                 }
             }
         } else {
-            // Lógica Normal: Acha o primeiro inimigo no alcance
+            // Acha o primeiro inimigo no alcance
             for (Enemy enemy : enemies) {
                 if (enemy.active) {
                     double distance = Math.hypot(enemy.x - towerCenterX, enemy.y - towerCenterY);
@@ -132,7 +129,6 @@ public class Tower implements Drawable {
 
     @Override
     public void draw(Graphics2D g2) {
-        // Cor baseada no tipo
         g2.setColor(type == TowerType.NORMAL ? Color.BLUE : new Color(0, 100, 0)); // Azul ou Verde Escuro
         g2.fillRect(x, y, gp.tileSize, gp.tileSize);
 

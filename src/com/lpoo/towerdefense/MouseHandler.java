@@ -30,7 +30,7 @@ public class MouseHandler extends MouseAdapter {
         mouseY = e.getY();
     }
 
-    // Método para resetar o estado do clique após ser processado no loop do jogo
+    // Reseta o estado do clique após ser processado no loop do jogo
     public void resetClicks() {
         leftClicked = false;
         rightClicked = false;

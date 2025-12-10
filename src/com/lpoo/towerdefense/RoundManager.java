@@ -2,7 +2,7 @@ package com.lpoo.towerdefense;
 
 public class RoundManager {
 
-    private final GamePanel gp; // Ao adicionar final nas variáveis elas tornam-se constantes(Elas são valores que você define uma vez e nunca mais muda)
+    private final GamePanel gp; // Ao adicionar final nas variáveis elas tornam-se constantes (Elas são valores que você define uma vez e nunca mais muda)
 
     // Configuração dos rounds
     private int currentRound = 0;
@@ -55,7 +55,7 @@ public class RoundManager {
         int enemiesToSpawn = enemiesPerRound[currentRound];
         if (enemiesSpawnedThisRound < enemiesToSpawn && System.currentTimeMillis() - lastSpawnTime > spawnDelay) {
 
-            // 1. Decide QUAL inimigo criar
+            // Decide QUAL inimigo criar
             int enemyType = 0; // 0 = Javali Normal
 
             if ((enemiesSpawnedThisRound + 1) % 3 == 0) {
@@ -65,10 +65,7 @@ public class RoundManager {
                 enemyType = 1; // JavaliAlfa (a cada 5)
             }
 
-            // 2. Chama a Fábrica para criar e adicionar (O CÓDIGO LIMPO FICA AQUI)
             spawnEnemy(enemyType);
-
-            // 3. Atualiza contadores
             enemiesSpawnedThisRound++;
             lastSpawnTime = System.currentTimeMillis();
         }
@@ -77,7 +74,7 @@ public class RoundManager {
     // Verifica se um round em progresso terminou
     public void checkRoundCompletion() {
         if (!roundInProgress) {
-            return; // Round já terminou ou nem começou
+            return;
         }
 
         int enemiesThisRound = enemiesPerRound[currentRound];
@@ -96,7 +93,6 @@ public class RoundManager {
         } else if (enemyType == 2) {
             newEnemy = new Leitao(gp);
         } else {
-            // Default (tipo 0 ou qualquer outro desconhecido vira Javali normal)
             newEnemy = new Javali(gp);
         }
 

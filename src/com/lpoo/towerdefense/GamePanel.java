@@ -97,8 +97,8 @@ public class GamePanel extends JPanel implements Runnable{
             lastTime = currentTime;
 
             if(delta >= 1){
-                update(); // 1 ATUALIZAR: atualiza informações como a posição do personagem
-                repaint(); // 2 DESENHAR: desenha a tela com as informações atualizadas
+                update();
+                repaint();
                 delta--;
             }
         }
@@ -109,7 +109,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void update(){
 
         if (gameState == GameState.GAME_OVER){
-            return; // Não faz mais nada se o jogo acabou
+            return;
         }
 
         handleMouse();
@@ -149,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable{
             int gridCol = mouseX / tileSize;
             int gridRow = mouseY / tileSize;
 
-             // 1. Lógica de Compra na UI
+             // Lógica de Compra na UI
             if (gridRow >= 14) {
                 if (gridCol >= 1 && gridCol <= 2) {
                     gameState = GameState.PLACING_TOWER_NORMAL;
@@ -158,7 +158,7 @@ public class GamePanel extends JPanel implements Runnable{
                 }
             } 
 
-            // 2. Lógica de Posicionamento
+            // Lógica de Posicionamento
             else if (gameState == GameState.PLACING_TOWER_NORMAL || gameState == GameState.PLACING_TOWER_SNIPER) {
 
                 Tower.TowerType typeToPlace = (gameState == GameState.PLACING_TOWER_NORMAL)
@@ -220,21 +220,15 @@ public class GamePanel extends JPanel implements Runnable{
 
         
     private boolean canPlaceTower(int col, int row) {
-        // Fora dos limites do mapa?
         if (col < 0 || col >= maxScreenCol || row < 0 || row >= maxScreenRow) {
             return false;
         }
-        // Está na área da UI? (últimas 2 linhas)
         if (row >= 14) {
             return false;
         }
-
-        // Tem como contruir no local?
         if (!mapManager.isPlaceable(col, row)) {
             return false; // Não pode construir se for caminho(2) ou grama clara(3)
         }
-
-        // Já existe uma torre lá?
         for (Tower tower : towers) {
             if (tower.col == col && tower.row == row) {
                 return false;
@@ -282,13 +276,12 @@ public class GamePanel extends JPanel implements Runnable{
         g2.drawString(lifeText, screenWidth - 100, 30);
 
         if (coinImage != null) {
-            // O Y=10 alinha o topo da imagem (de 20px de altura) com o topo do seu texto (que tem fonte 20 e está em Y=30)
             g2.drawImage(coinImage, 20, 10, this);
         }
 
-// Desenha o texto (número) das moedas
+        // Desenha o texto (número) das moedas
         String coinsText = String.valueOf(coins);
-// O X=45 desenha o texto logo após o ícone (que começa em 20 e tem 20px de largura) + 5px de espaço
+        // O X=45 desenha o texto logo após o ícone (que começa em 20 e tem 20px de largura) + 5px de espaço
         g2.drawString(coinsText, 45, 30);
        
          // Desenha o round atual
