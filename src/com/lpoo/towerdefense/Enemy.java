@@ -35,11 +35,9 @@ public abstract class Enemy implements Drawable {
         setDefaultValues();
     }
 
-    // Método abstrato: As subclasses SÃO OBRIGADAS a implementar isso
     public abstract Color getColor();
 
     private void buildPath() {
-        // (Copie o seu método buildPath original aqui, ele é comum a todos)
         path = new ArrayList<>();
         path.add(new Point(gp.tileSize * 0, gp.tileSize * 3));
         path.add(new Point(gp.tileSize * 13, gp.tileSize * 3));
@@ -63,7 +61,6 @@ public abstract class Enemy implements Drawable {
     }
 
     public void update() {
-        // (Copie o seu método update original aqui. Ele funciona igual para todos)
         if (isSlowed && System.currentTimeMillis() > slowEffectEndTime) {
             isSlowed = false;
         }
@@ -111,7 +108,6 @@ public abstract class Enemy implements Drawable {
         triangle.addPoint(x, y + gp.tileSize);
         triangle.addPoint(x + gp.tileSize, y + gp.tileSize);
 
-        // AQUI ESTÁ O TRUQUE: Usamos o método abstrato para pegar a cor
         g2.setColor(this.getColor()); 
         
         g2.fill(triangle);

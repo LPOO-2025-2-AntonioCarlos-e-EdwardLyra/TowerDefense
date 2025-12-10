@@ -39,6 +39,12 @@ public class GamePanel extends JPanel implements Runnable{
     List<Enemy> enemies;
     List<Tower> towers;
     private Image coinImage;
+    private void gastarMoedas(int valor) throws SaldoInsuficienteException {
+        if (coins < valor) {
+            throw new SaldoInsuficienteException("Saldo insuficiente! Tens: " + coins + ", Custo: " + valor);
+        }
+        coins -= valor;
+    }
 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screeHeight));
@@ -145,9 +151,9 @@ public class GamePanel extends JPanel implements Runnable{
 
              // 1. Lógica de Compra na UI
             if (gridRow >= 14) {
-                if (gridCol >= 1 && gridCol <= 2 && coins >= Tower.NORMAL_COST) {
+                if (gridCol >= 1 && gridCol <= 2) {
                     gameState = GameState.PLACING_TOWER_NORMAL;
-                } else if (gridCol >= 3 && gridCol <= 4 && coins >= Tower.SNIPER_COST) {
+                } else if (gridCol >= 3 && gridCol <= 4) {
                     gameState = GameState.PLACING_TOWER_SNIPER;
                 }
             } 
@@ -160,28 +166,41 @@ public class GamePanel extends JPanel implements Runnable{
                         : Tower.TowerType.SNIPER;
 
                 int cost = (typeToPlace == Tower.TowerType.NORMAL) ? Tower.NORMAL_COST : Tower.SNIPER_COST;
-
                 Tower existingTower = getTowerAt(gridCol, gridRow);
 
-                if (existingTower != null) {
+                try {
+                    if (existingTower != null) {
+                        // Verifica se é o mesmo tipo e se pode evoluir
+                        if (existingTower.type == typeToPlace && existingTower.level < 3) {
 
-                    if (existingTower.type == typeToPlace && coins >= cost && existingTower.level < 3) {
-                        existingTower.upgrade();
-                        coins -= cost;
-                        gameState = GameState.NORMAL;
-                        System.out.println("Torre evoluída para o nível " + existingTower.level);
+                            // Tenta gastar as moedas antes de evoluir
+                            gastarMoedas(cost);
+
+                            existingTower.upgrade();
+                            gameState = GameState.NORMAL;
+                            System.out.println("Sucesso: Torre evoluída para nível " + existingTower.level);
+                        }
+                        else if (existingTower.level >= 3) {
+                            System.out.println("Aviso: Torre já está no nível máximo!");
+                            gameState = GameState.NORMAL;
+                        }
                     }
-                    else if (existingTower.level >= 3) {
-                        System.out.println("Torre já está no nível máximo (3)!");
-                        gameState = GameState.NORMAL;
+                    else {
+                        // Tenta colocar uma nova torre
+                        if (canPlaceTower(gridCol, gridRow)) {
+
+                            // Tenta gastar as moedas antes de criar
+                            gastarMoedas(cost);
+
+                            towers.add(new Tower(this, gridCol, gridRow, typeToPlace));
+                            gameState = GameState.NORMAL;
+                            System.out.println("Sucesso: Torre construída!");
+                        }
                     }
-                }
-                else {
-                    if (canPlaceTower(gridCol, gridRow)) {
-                        towers.add(new Tower(this, gridCol, gridRow, typeToPlace));
-                        coins -= cost;
-                        gameState = GameState.NORMAL;
-                    }
+                } catch (SaldoInsuficienteException e) {
+                    // Tratamento do erro: Imprime a mensagem e cancela a ação
+                    System.err.println("Erro na transação: " + e.getMessage());
+                    gameState = GameState.NORMAL; // Cancela o modo de construção se falhar
                 }
             }
         }
